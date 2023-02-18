@@ -1,3 +1,4 @@
+.gitignore
 artifacts/
 node_modules/
 .git
