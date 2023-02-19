@@ -8,9 +8,9 @@ contract energySharingSimulation {
 
     // Defines a struct for house in grid
     struct Node{
-    bool is_connected; // see if house connected to grid 
-    int NL; //Net Load ranging from -2 to 2
-    int SoC; //State of Charge (battery) ranging from 0 to 10
+    bool is_connected;  // see if house connected to grid 
+    int NL;             //Net Load ranging from -2 to 2
+    int Soc;            //State of Charge (battery) ranging from 0 to 10
     uint256 nodeState;
     }
 
@@ -36,12 +36,12 @@ contract energySharingSimulation {
             for (uint256 j = 0; j < columns; j++) {
                 seed = i + j;
                 int randomNL = (int(myLibrary.getRandomNumber(seed)) % 5) - 2;
-                int randomSoC = int(myLibrary.getRandomNumber(seed));
-                uint256 state = calculateState(randomNL, randomSoC, i, j);
+                int randomSoc = int(myLibrary.getRandomNumber(seed));
+                uint256 state = calculateState(randomNL, randomSoc, i, j);
                 myNode = Node({
                     is_connected: true,
                     NL: randomNL,
-                    SoC: randomSoC,
+                    Soc: randomSoc,
                     nodeState: state
                 });
                 board[i][j] = myNode;
@@ -52,6 +52,7 @@ contract energySharingSimulation {
 
     function setState(uint256 row, uint256 column, Node memory newNode) public {
         board[row][column] = newNode;
+        nextBoard[row][column] = newNode;
     }
 
 
@@ -81,26 +82,26 @@ contract energySharingSimulation {
     // threshold below which grid connexion is needed.(range 0 - 10)
     // uint256 private alpha = 8;
     // uint256 private beta = 2;
-    int private SoCmax = 10;  // State of charge of battery ranging from 0 - 10.
-    int private SoCmin = 4;  // minimum allowable state of charge of battery.
+    int private Socmax = 10;  // State of charge of battery ranging from 0 - 10.
+    int private Socmin = 2;  // minimum allowable state of charge of battery.
 
 
-    function calculateState(int NL, int SoC, uint256 row, uint256 column) private view returns(uint256){
+    function calculateState(int NL, int Soc, uint256 row, uint256 column) private view returns(uint256){
         // State 1 : Demand satisfied + 
         // State 2 : Demand satisfied − 
         // State 3 : Surplus power
         // State 4 : Power deficit
         // State 5 : Grid connexion
-        if (NL>0 && SoC>SoCmin && SoC<SoCmax) {
+        if (NL>=0 && Soc>Socmin && Soc<Socmax) {
             return 1;
         }
-        else if (NL<0 && SoC>SoCmin && SoC<SoCmax) {
+        else if (NL<=0 && Soc>Socmin && Soc<Socmax) {
             return 2;
         }
-        else if (NL>0 && SoC==SoCmax) {
+        else if (NL>=0 && Soc==Socmax) {
             return 3;
         }
-        else if (NL<0 && SoC<=SoCmin) {
+        else if (NL<=0 && Soc<=Socmin) {
             (uint256 Xhouse, uint256 Yhouse) = checkSurplusPower(row, column); 
             if((Xhouse == uint256(999) &&  Yhouse == uint256(999)))
             {
@@ -116,13 +117,18 @@ contract energySharingSimulation {
 
     // dummy function to send energy from one house to another
     function sendEnergy(uint256 iFrom, uint256 jFrom, uint256 iTo, uint256 jTo) public{
-        nextBoard[iFrom][jFrom].SoC -= 2;
-        nextBoard[iTo][jTo].SoC += 2;
+        nextBoard[iFrom][jFrom].Soc -= 2;
+        nextBoard[iTo][jTo].Soc += 2;
     }
 
     // dummy function to get energy from the grid
     function getEnergyGrid(uint256 i, uint256 j) public{
-        nextBoard[i][j].SoC += 10;
+        nextBoard[i][j].Soc += 4;
+    }
+
+    // dummy function to sell energy back to grid
+    function sellEnergyToGrid(uint256 i, uint256 j) public{
+        nextBoard[i][j].Soc -= 2;
     }
 
     // Function to update Grid
@@ -141,8 +147,16 @@ contract energySharingSimulation {
                     else if (state == 5){
                         getEnergyGrid(i, j);
                     }
-                    nextBoard[i][j].SoC += nextBoard[i][j].NL;
-                    nextBoard[i][j].nodeState = calculateState(nextBoard[i][j].NL, nextBoard[i][j].SoC, i, j);
+
+                    if (nextBoard[i][j].Soc == 10 && nextBoard[i][j].NL > 0){
+                        sellEnergyToGrid(i,j);
+                    }
+                    
+                    nextBoard[i][j].Soc += nextBoard[i][j].NL;
+                    if (nextBoard[i][j].Soc > 10){
+                        nextBoard[i][j].Soc = 10;
+                    }
+                    nextBoard[i][j].nodeState = calculateState(nextBoard[i][j].NL, nextBoard[i][j].Soc, i, j);
                 }
             }
         }
