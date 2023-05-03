@@ -1,18 +1,14 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
+import Grid from "./utils";
 
-class HouseNode {
-  constructor(NetLoad, SoC) {
-    this.NetLoad = NetLoad; // net energy load of the house node
-    this.SoC = SoC;
-    this.state = 0;
-    this.isConnected = true; // boolean value indicating if the house node is connected to the energy grid
-  }
-}
-
+console.log(Grid);
 export default function Grid1() {
   const [hydrated, setHydrated] = useState(false);
   const [energyToGrid, setEnergyToGrid] = useState(0);
+  const [countUpdate, setCountUpdate] = useState(0);
+  const [houseNodes, setHouseNodes] = useState(Grid);
+
   useEffect(() => {
     setHydrated(true);
     for (let y = 0; y < totalRows; y++) {
@@ -31,25 +27,8 @@ export default function Grid1() {
   const SoCmax = 10; // State of charge of battery ranging from 0 - 10.
   const SoCmin = 2; // minimum allowable state of charge of battery.
   const SoCsufficient = 8;
-  const totalRows = 5;
-  const totalColumns = 5;
-
-  const [houseNodes, setHouseNodes] = useState(() => {
-    const nodes = [];
-    for (let y = 0; y < totalRows; y++) {
-      const row = [];
-      for (let x = 0; x < totalColumns; x++) {
-        let soc = Math.floor(Math.random() * 10);
-        let netload = Math.floor(Math.random() * 5 - 2);
-
-        const node = new HouseNode(netload, soc, 0);
-        row.push(node);
-      }
-      nodes.push(row);
-    }
-
-    return nodes;
-  });
+  const totalRows = 4;
+  const totalColumns = 4;
 
   function calculateState(NL, SoC, row, column) {
     // State 1 : Demand satisfied +
@@ -61,7 +40,7 @@ export default function Grid1() {
       return 1;
     } else if (
       (NL <= 0 && SoC > SoCmin && SoC < SoCmax) ||
-      (NL >= 0 && SoC <= SoCmin)
+      (NL > 0 && SoC <= SoCmin)
     ) {
       return 2;
     } else if (NL >= 0 && SoC > SoCsufficient) {
@@ -185,6 +164,7 @@ export default function Grid1() {
     setEnergyToGrid((previousState) => previousState + newEnergyToGrid);
 
     setHouseNodes(updatedHouseNodes);
+    setCountUpdate((previousState) => previousState + 1);
   };
 
   const rows = houseNodes.map((row, rowIndex) => {
@@ -201,7 +181,21 @@ export default function Grid1() {
           </div>
           <div>
             <p className="mb-0 text-center">{`NL: ${houseNode.NetLoad}, SoC: ${houseNode.SoC}`}</p>
-            <p className="mb-0 text-center fw-bold">{`State: ${houseNode.state}`}</p>
+            {(houseNode.state == 1 || houseNode.state == 2) && (
+              <p className="mb-0 text-center fw-bold text-warning">
+                State: {houseNode.state}
+              </p>
+            )}{" "}
+            {houseNode.state == 3 && (
+              <p className="mb-0 text-center fw-bold text-success">
+                State: {houseNode.state}
+              </p>
+            )}{" "}
+            {(houseNode.state == 4 || houseNode.state == 5) && (
+              <p className="mb-0 text-center fw-bold text-danger">
+                State: {houseNode.state}
+              </p>
+            )}
           </div>
         </div>
       </td>
@@ -217,7 +211,8 @@ export default function Grid1() {
       <button className="btn btn-primary" onClick={updateBoard}>
         Update Board
       </button>
-      <p>Total energy sold and bought from Grid: {energyToGrid}</p>
+      <div>Total energy sold and bought from Grid: {energyToGrid}</div>
+      <div>Number of updates : {countUpdate}</div>
     </>
   );
 }

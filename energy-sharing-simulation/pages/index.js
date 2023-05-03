@@ -1,6 +1,6 @@
 import Head from "next/head";
 import Grid1 from "../components/grid1";
-
+import Grid2 from "../components/grid2";
 export default function Home() {
   // Define the HouseNode class
 
@@ -24,7 +24,10 @@ export default function Home() {
         </p>
         {/* Add more content as needed */}
       </main>
+      <h2>ENERGY SHARING BETWEEN HOUSES WITH 5 STATES </h2>
       <Grid1 />
+      <h2>ENERGY SHARING BETWEEN HOUSES WITH 3 STATES </h2>
+      <Grid2 />
     </div>
   );
 }
