@@ -66,25 +66,28 @@ contract governmentEntityNode {
     // Define the state of each cell on the game board
     //mapping (address => mapping (address => houseNode)) public board;
     address payable[][] public board;
+    address payable[][] public board2;
+
 
     function setMatrixValues() public {
         board = [
             [
-                payable(0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC),
-                payable(0x70997970C51812dc3A010C7d01b50e0d17dc79C8)
+                payable(0xCfC885bc9B4ffa37720f1Bacd0c69aDF86E7a48d),
+                payable(0xb53F6d842360Dd01402202d6578e0F826601c085)
             ]
         ];
+        // board2 = [
+        //     [
+        //         payable(0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC),
+        //         payable(0x70997970C51812dc3A010C7d01b50e0d17dc79C8)
+        //     ]
+        // ];
     }
 
     // Define a variable to store the next state of each cell on the game board
     mapping(uint256 => mapping(uint256 => Node)) public nextBoard;
 
     //function to set next board
-
-    // alpha and beta are constants from the basepaper. alpha being the reasonable percentage of battery to be called demand satisfied and beta the lower
-    // threshold below which grid connexion is needed.(range 0 - 10)
-    // uint256 private alpha = 8;
-    // uint256 private beta = 2;
     int private Socmax = 10; // State of charge of battery ranging from 0 - 10.
     int private Socmin = 2; // minimum allowable state of charge of battery.
 
@@ -188,7 +191,7 @@ contract governmentEntityNode {
         // Iterate over all nodes
         for (uint256 i = 0; i < rows; i++) {
             for (uint256 j = 0; j < columns; j++) {
-                houseNode house = houseNode(board[i][j]);
+                houseNode house = houseNode(board2[i][j]);
                 if (house.connection()) {
                     uint256 state = house.returnstate();
 
@@ -197,7 +200,7 @@ contract governmentEntityNode {
                             uint256 iSurplus,
                             uint256 jSurplus
                         ) = checkSurplusPower(i, j);
-                        house.sendEnergy(board[iSurplus][jSurplus]);
+                        house.sendEnergy(board2[iSurplus][jSurplus]);
                         houseNode A = houseNode(board[iSurplus][jSurplus]);
                         A.Socdecrement(2);
                         houseNode B = houseNode(board[i][j]);
