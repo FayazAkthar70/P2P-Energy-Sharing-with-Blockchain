@@ -108,6 +108,59 @@ export default function Grid1() {
     return [999, 999];
   }
 
+  function checkDeficientPower(row, column) {
+    for (let stateNumber = 4; stateNumber < 2; stateNumber -= 1) {
+      if (row > 0 && houseNodes[row - 1][column].state === stateNumber) {
+        return [row - 1, column];
+      }
+      if (
+        row < totalRows - 1 &&
+        houseNodes[row + 1][column].state === stateNumber
+      ) {
+        return [row + 1, column];
+      }
+      if (column > 0 && houseNodes[row][column - 1].state === stateNumber) {
+        console.log("this has been called");
+        return [row, column - 1];
+      }
+      if (
+        column < totalColumns - 1 &&
+        houseNodes[row][column + 1].state === stateNumber
+      ) {
+        return [row, column + 1];
+      }
+      if (
+        row - 1 > 0 &&
+        column - 1 > 0 &&
+        houseNodes[row - 1][column - 1].state === stateNumber
+      ) {
+        return [row - 1, column - 1];
+      }
+      if (
+        row > 0 &&
+        column < totalColumns - 1 &&
+        houseNodes[row - 1][column + 1].state === stateNumber
+      ) {
+        return [row - 1, column + 1];
+      }
+      if (
+        row < totalRows - 1 &&
+        column > 0 &&
+        houseNodes[row + 1][column - 1].state === stateNumber
+      ) {
+        return [row + 1, column - 1];
+      }
+      if (
+        row < totalRows - 1 &&
+        column < totalColumns - 1 &&
+        houseNodes[row + 1][column + 1].state === stateNumber
+      ) {
+        return [row + 1, column + 1];
+      }
+    }
+    return [999, 999];
+  }
+
   function sendEnergy(updatedHouseNodes, iFrom, jFrom, iTo, jTo) {
     console.log(
       `sending energy from house ${iFrom}, ${jFrom} at soc value ${updatedHouseNodes[iFrom][jFrom].SoC} to ${iTo}, ${jTo} at soc value ${updatedHouseNodes[iTo][jTo].SoC}`

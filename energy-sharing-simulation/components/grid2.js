@@ -8,6 +8,9 @@ export default function Grid1() {
   const [hydrated, setHydrated] = useState(false);
   const [energyToGrid, setEnergyToGrid] = useState(0);
   const [countUpdate, setCountUpdate] = useState(0);
+  const [energyShared, setEnergyShared] = useState(0);
+  const [totalEnergyGrid, setTotalEnergyGrid] = useState(0);
+
   let grid = Grid.map((row) =>
     row.map((houseNode) => {
       return { ...houseNode };
@@ -32,7 +35,8 @@ export default function Grid1() {
 
   const SoCmax = 10; // State of charge of battery ranging from 0 - 10.
   const SoCmin = 4; // minimum allowable state of charge of battery.
-  const SoCsufficient = 6;
+  const alphaSoCsufficient = 6;
+  const betaSoCsufficient = 8;
   const totalRows = 4;
   const totalColumns = 4;
 
@@ -41,11 +45,14 @@ export default function Grid1() {
     // State 2 : Demand satisfied
     // State 3 : Energy defecit
 
-    if (NL >= 0 && SoC >= SoCsufficient) {
+    if (NL >= 0 && SoC >= alphaSoCsufficient) {
       return 1;
-    } else if ((NL >= 0 && SoC <= SoCsufficient) || (NL < 0 && SoC > SoCmin)) {
+    } else if (
+      (NL >= 0 && SoC < alphaSoCsufficient) ||
+      (NL <= 0 && SoC > betaSoCsufficient)
+    ) {
       return 2;
-    } else if (NL <= 0 && SoC <= SoCmin) {
+    } else if (NL <= 0 && SoC <= betaSoCsufficient) {
       return 3;
     }
     return 4;
@@ -166,6 +173,7 @@ export default function Grid1() {
       iTo,
       jTo
     );
+    return 2;
   }
 
   function sellEnergyToGrid(updatedHouseNodes, i, j) {
@@ -193,6 +201,9 @@ export default function Grid1() {
 
   const updateBoard = () => {
     let newEnergyToGrid = 0;
+    let newEnergyShared = 0;
+    let newTotalEnergyGrid = 0;
+
     let updatedHouseNodes = houseNodes.map((row) =>
       row.map((houseNode) => {
         return { ...houseNode };
@@ -206,7 +217,13 @@ export default function Grid1() {
           console.log(`housenode ${y},${x} is state 3`);
           let [ySurplus, xSurplus] = checkSurplusPower(y, x);
           if (ySurplus != 999) {
-            sendEnergy(updatedHouseNodes, ySurplus, xSurplus, y, x);
+            newEnergyShared += sendEnergy(
+              updatedHouseNodes,
+              ySurplus,
+              xSurplus,
+              y,
+              x
+            );
           } else {
             newEnergyToGrid += getEnergyGrid(updatedHouseNodes, y, x);
           }
@@ -222,7 +239,7 @@ export default function Grid1() {
         }
 
         updatedHouseNodes[y][x].SoC += updatedHouseNodes[y][x].NetLoad;
-
+        newTotalEnergyGrid += updatedHouseNodes[y][x].SoC;
         if (updatedHouseNodes[y][x].SoC > SoCmax) {
           newEnergyToGrid += sellEnergyToGrid(updatedHouseNodes, y, x);
         }
@@ -238,7 +255,8 @@ export default function Grid1() {
       }
     }
     setEnergyToGrid((previousState) => previousState + newEnergyToGrid);
-
+    setEnergyShared((previousState) => previousState + newEnergyShared);
+    setTotalEnergyGrid(newTotalEnergyGrid);
     setHouseNodes(updatedHouseNodes);
     setCountUpdate((previousState) => previousState + 1);
   };
@@ -284,11 +302,15 @@ export default function Grid1() {
       <table className="table table-bordered ">
         {hydrated && <tbody>{rows}</tbody>}
       </table>
-      <button className="btn btn-primary" onClick={updateBoard}>
-        Update Board
-      </button>
-      <div>Total energy sold and bought from Grid: {energyToGrid}</div>
-      <div>Number of updates : {countUpdate}</div>
+      <div className="m-3">
+        <button className="btn btn-primary" onClick={updateBoard}>
+          Update Board
+        </button>
+        <p>Number of updates : {countUpdate}</p>
+        <div>Total energy sold and bought from Grid: {energyToGrid}</div>
+        <div>Total energy shared between housews : {energyShared}</div>
+        <div>Total energy stored in houses : {totalEnergyGrid}</div>
+      </div>
     </>
   );
 }
