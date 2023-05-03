@@ -26,7 +26,7 @@ export default function Grid1() {
   }, []);
 
   const SoCmax = 10; // State of charge of battery ranging from 0 - 10.
-  const SoCmin = 2; // minimum allowable state of charge of battery.
+  const SoCmin = 4; // minimum allowable state of charge of battery.
   const SoCsufficient = 6;
   const totalRows = 4;
   const totalColumns = 4;
@@ -38,7 +38,7 @@ export default function Grid1() {
 
     if (NL >= 0 && SoC >= SoCsufficient) {
       return 1;
-    } else if ((NL >= 0 && SoC <= SoCsufficient) || (NL < 0 && SoC >= SoCmin)) {
+    } else if ((NL >= 0 && SoC <= SoCsufficient) || (NL < 0 && SoC > SoCmin)) {
       return 2;
     } else if (NL <= 0 && SoC <= SoCmin) {
       return 3;
