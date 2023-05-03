@@ -8,7 +8,12 @@ export default function Grid1() {
   const [hydrated, setHydrated] = useState(false);
   const [energyToGrid, setEnergyToGrid] = useState(0);
   const [countUpdate, setCountUpdate] = useState(0);
-  const [houseNodes, setHouseNodes] = useState(Grid);
+  let grid = Grid.map((row) =>
+    row.map((houseNode) => {
+      return { ...houseNode };
+    })
+  );
+  const [houseNodes, setHouseNodes] = useState(grid);
 
   useEffect(() => {
     setHydrated(true);

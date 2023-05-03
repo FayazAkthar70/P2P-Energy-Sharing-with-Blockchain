@@ -2,12 +2,16 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import Grid from "./utils";
 
-console.log(Grid);
 export default function Grid1() {
   const [hydrated, setHydrated] = useState(false);
   const [energyToGrid, setEnergyToGrid] = useState(0);
   const [countUpdate, setCountUpdate] = useState(0);
-  const [houseNodes, setHouseNodes] = useState(Grid);
+  let grid = Grid.map((row) =>
+    row.map((houseNode) => {
+      return { ...houseNode };
+    })
+  );
+  const [houseNodes, setHouseNodes] = useState(grid);
 
   useEffect(() => {
     setHydrated(true);
@@ -36,11 +40,15 @@ export default function Grid1() {
     // State 3 : Surplus power
     // State 4 : Power deficit
     // State 5 : Grid connexion
-    if (NL >= 0 && SoC > SoCmin) {
+    if (NL >= 0 && SoC > SoCmin && SoC < SoCmax) {
       return 1;
-    } else if ((NL <= 0 && SoC > SoCmin) || (NL > 0 && SoC <= SoCmin)) {
+    } else if (
+      (NL <= 0 && SoC > SoCmin && SoC < SoCmax) ||
+      (NL > 0 && SoC <= SoCmin)
+    ) {
       return 2;
-    } else if (NL >= 0 && SoC > +SoCsufficient) {
+    } else if (NL >= 0 && SoC > SoCsufficient) {
+      console.log(`for NL : ${NL} and Soc : ${SoC} state 3 is being assigned`);
       return 3;
     } else if (NL <= 0 && SoC <= SoCmin) {
       const [Xhouse, Yhouse] = checkSurplusPower(row, column);
