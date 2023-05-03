@@ -114,17 +114,42 @@ export default function Grid1() {
     );
     updatedHouseNodes[iFrom][jFrom].SoC -= 2;
     updatedHouseNodes[iTo][jTo].SoC += 2;
+
+    updatedHouseNodes[iFrom][jFrom].state = calculateState(
+      updatedHouseNodes[iFrom][jFrom].NetLoad,
+      updatedHouseNodes[iFrom][jFrom].SoC,
+      iFrom,
+      jFrom
+    );
+    updatedHouseNodes[iTo][jTo].state = calculateState(
+      updatedHouseNodes[iTo][jTo].NetLoad,
+      updatedHouseNodes[iTo][jTo].SoC,
+      iTo,
+      jTo
+    );
     return 2;
   }
 
   function sellEnergyToGrid(updatedHouseNodes, i, j) {
     let newEnergyToGrid = updatedHouseNodes[i][j].SoC % 10;
     updatedHouseNodes[i][j].SoC -= newEnergyToGrid;
+    updatedHouseNodes[i][j].state = calculateState(
+      updatedHouseNodes[i][j].NetLoad,
+      updatedHouseNodes[i][j].SoC,
+      i,
+      j
+    );
     return newEnergyToGrid;
   }
 
   function getEnergyGrid(updatedHouseNodes, i, j) {
     updatedHouseNodes[i][j].SoC += 4;
+    updatedHouseNodes[i][j].state = calculateState(
+      updatedHouseNodes[i][j].NetLoad,
+      updatedHouseNodes[i][j].SoC,
+      i,
+      j
+    );
     return 4;
   }
 

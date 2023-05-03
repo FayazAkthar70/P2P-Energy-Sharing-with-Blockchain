@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import Grid from "./utils";
 
-export default function Grid1() {
+export default function Grid3() {
   const [hydrated, setHydrated] = useState(false);
   const [energyToGrid, setEnergyToGrid] = useState(0);
   const [countUpdate, setCountUpdate] = useState(0);
@@ -109,7 +109,11 @@ export default function Grid1() {
   }
 
   function checkDeficientPower(row, column) {
-    for (let stateNumber = 4; stateNumber < 2; stateNumber -= 1) {
+    for (let stateNumber = 4; stateNumber >= 1; stateNumber -= 1) {
+      console.log("has entered checkDeficientPower");
+      if (stateNumber == 3) {
+        continue;
+      }
       if (row > 0 && houseNodes[row - 1][column].state === stateNumber) {
         return [row - 1, column];
       }
@@ -120,7 +124,6 @@ export default function Grid1() {
         return [row + 1, column];
       }
       if (column > 0 && houseNodes[row][column - 1].state === stateNumber) {
-        console.log("this has been called");
         return [row, column - 1];
       }
       if (
@@ -167,17 +170,41 @@ export default function Grid1() {
     );
     updatedHouseNodes[iFrom][jFrom].SoC -= 2;
     updatedHouseNodes[iTo][jTo].SoC += 2;
+    updatedHouseNodes[iFrom][jFrom].state = calculateState(
+      updatedHouseNodes[iFrom][jFrom].NetLoad,
+      updatedHouseNodes[iFrom][jFrom].SoC,
+      iFrom,
+      jFrom
+    );
+    updatedHouseNodes[iTo][jTo].state = calculateState(
+      updatedHouseNodes[iTo][jTo].NetLoad,
+      updatedHouseNodes[iTo][jTo].SoC,
+      iTo,
+      jTo
+    );
     return 2;
   }
 
   function sellEnergyToGrid(updatedHouseNodes, i, j) {
     let newEnergyToGrid = updatedHouseNodes[i][j].SoC % 10;
     updatedHouseNodes[i][j].SoC -= newEnergyToGrid;
+    updatedHouseNodes[i][j].state = calculateState(
+      updatedHouseNodes[i][j].NetLoad,
+      updatedHouseNodes[i][j].SoC,
+      i,
+      j
+    );
     return newEnergyToGrid;
   }
 
   function getEnergyGrid(updatedHouseNodes, i, j) {
     updatedHouseNodes[i][j].SoC += 4;
+    updatedHouseNodes[i][j].state = calculateState(
+      updatedHouseNodes[i][j].NetLoad,
+      updatedHouseNodes[i][j].SoC,
+      i,
+      j
+    );
     return 4;
   }
 
@@ -196,7 +223,6 @@ export default function Grid1() {
     for (let y = 0; y < totalRows; y++) {
       for (let x = 0; x < totalColumns; x++) {
         if (houseNodes[y][x].state == 4) {
-          console.log(`housenode ${y},${x} is state 4`);
           let [ySurplus, xSurplus] = checkSurplusPower(y, x);
           if (ySurplus != 999) {
             newEnergyShared += sendEnergy(
@@ -207,12 +233,22 @@ export default function Grid1() {
               x
             );
           }
+        } else if (houseNodes[y][x].state == 3) {
+          console.log(`state is 3rd state ${y}. ${x}`);
+          let [yDeficient, xDeficient] = checkDeficientPower(y, x);
+          console.log(yDeficient, xDeficient);
+          if (yDeficient != 999) {
+            console.log("Energy is shared from 3rd state node");
+            newEnergyShared += sendEnergy(
+              updatedHouseNodes,
+              y,
+              x,
+              yDeficient,
+              xDeficient
+            );
+          }
         } else if (houseNodes[y][x].state == 5) {
           newEnergyToGrid += getEnergyGrid(updatedHouseNodes, y, x);
-        }
-
-        if (houseNodes[y][x].SoC == SoCmax && houseNodes[y][x].NetLoad > 0) {
-          console.log(updatedHouseNodes);
         }
 
         updatedHouseNodes[y][x].SoC += updatedHouseNodes[y][x].NetLoad;

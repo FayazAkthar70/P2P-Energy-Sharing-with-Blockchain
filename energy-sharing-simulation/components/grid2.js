@@ -103,7 +103,7 @@ export default function Grid1() {
   }
 
   function checkDeficientPower(row, column) {
-    for (let stateNumber = 3; stateNumber < 2; stateNumber -= 1) {
+    for (let stateNumber = 3; stateNumber >= 2; stateNumber -= 1) {
       if (row > 0 && houseNodes[row - 1][column].state === stateNumber) {
         return [row - 1, column];
       }
@@ -228,13 +228,15 @@ export default function Grid1() {
             newEnergyToGrid += getEnergyGrid(updatedHouseNodes, y, x);
           }
         } else if (houseNodes[y][x].state == 1) {
-          let [yDeficient, xDeficient] = checkDeficientPower(
-            updatedHouseNodes,
-            y,
-            x
-          );
+          let [yDeficient, xDeficient] = checkDeficientPower(y, x);
           if (yDeficient != 999) {
-            sendEnergy(updatedHouseNodes, y, x, yDeficient, xDeficient);
+            newEnergyShared += sendEnergy(
+              updatedHouseNodes,
+              y,
+              x,
+              yDeficient,
+              xDeficient
+            );
           }
         }
 
