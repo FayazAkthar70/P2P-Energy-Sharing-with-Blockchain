@@ -132,22 +132,4 @@ contract houseNode {
         //require(amount <= address(this).balance, "House has insufficient balance");
         //Node.Soc -= 2;
     }
-
-    //keeping max renewable energy generated to 5
-    // function RenewableEnergy(uint256 i, uint256 j) public{
-
-    //     nextBoard[i][j].Soc += (int(myLibrary.getRandomNumber(i+j)) % 6);
-    //     if(nextBoard[i][j].Soc > 10)
-    //     {
-    //         nextBoard[i][j].Soc = 10;
-    //     }
-    // }
-    // //keeping max energy consumed to 5
-    // function EnergyConsumed(uint256 i, uint256 j) public{
-    //     nextBoard[i][j].Soc -= (int(myLibrary.getRandomNumber(i+j)) % 6);
-    //     if(nextBoard[i][j].Soc < 0)
-    //     {
-    //         nextBoard[i][j].Soc = 0;
-    //     }
-    // }
 }
