@@ -40,7 +40,7 @@ export default function Grid1() {
       return 1;
     } else if ((NL <= 0 && SoC > SoCmin) || (NL > 0 && SoC <= SoCmin)) {
       return 2;
-    } else if (NL >= 0 && SoC > SoCsufficient) {
+    } else if (NL >= 0 && SoC > +SoCsufficient) {
       return 3;
     } else if (NL <= 0 && SoC <= SoCmin) {
       const [Xhouse, Yhouse] = checkSurplusPower(row, column);
