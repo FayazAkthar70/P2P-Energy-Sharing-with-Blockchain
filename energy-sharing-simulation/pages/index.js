@@ -25,8 +25,11 @@ export default function Home() {
         {/* Add more content as needed */}
       </main>
       <h2>ENERGY SHARING BETWEEN HOUSES WITH 5 STATES </h2>
+      <h6>State1 : Demand Satisfied Plus | State2 : Demand Satisfied Minus | State3 : Surplus Energy | State4 : Energy Deficit | State5 : Grid Connection</h6>
       <Grid1 />
       <h2>ENERGY SHARING BETWEEN HOUSES WITH 3 STATES </h2>
+      <h6>State1 : Energy Surplus | State2 : Energy Satisfied | State3 : Energy Deficit</h6>
+
       <Grid2 />
     </div>
   );
