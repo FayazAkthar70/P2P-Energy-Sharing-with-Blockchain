@@ -36,12 +36,9 @@ export default function Grid1() {
     // State 3 : Surplus power
     // State 4 : Power deficit
     // State 5 : Grid connexion
-    if (NL >= 0 && SoC > SoCmin && SoC < SoCmax) {
+    if (NL >= 0 && SoC > SoCmin) {
       return 1;
-    } else if (
-      (NL <= 0 && SoC > SoCmin && SoC < SoCmax) ||
-      (NL > 0 && SoC <= SoCmin)
-    ) {
+    } else if ((NL <= 0 && SoC > SoCmin) || (NL > 0 && SoC <= SoCmin)) {
       return 2;
     } else if (NL >= 0 && SoC > SoCsufficient) {
       return 3;
@@ -106,7 +103,6 @@ export default function Grid1() {
     );
     updatedHouseNodes[iFrom][jFrom].SoC -= 2;
     updatedHouseNodes[iTo][jTo].SoC += 2;
-    console.log();
   }
 
   function sellEnergyToGrid(updatedHouseNodes, i, j) {
@@ -122,7 +118,7 @@ export default function Grid1() {
 
   const updateBoard = () => {
     let newEnergyToGrid = 0;
-    console.log("aslkfjasl;kfjalskjflaksjflaksjflaksdflaskjf;alskdj");
+    console.log("aslkfjasl;kfjxalskjflaksjflaksjflaksdflaskjf;alskdj");
     let updatedHouseNodes = houseNodes.map((row) =>
       row.map((houseNode) => {
         return { ...houseNode };
@@ -161,8 +157,8 @@ export default function Grid1() {
         );
       }
     }
-    setEnergyToGrid((previousState) => previousState + newEnergyToGrid);
 
+    setEnergyToGrid((previousState) => previousState + newEnergyToGrid);
     setHouseNodes(updatedHouseNodes);
     setCountUpdate((previousState) => previousState + 1);
   };
@@ -208,11 +204,13 @@ export default function Grid1() {
       <table className="table table-bordered ">
         {hydrated && <tbody>{rows}</tbody>}
       </table>
-      <button className="btn btn-primary" onClick={updateBoard}>
-        Update Board
-      </button>
-      <div>Total energy sold and bought from Grid: {energyToGrid}</div>
-      <div>Number of updates : {countUpdate}</div>
+      <div className="m-3">
+        <button className="btn btn-primary" onClick={updateBoard}>
+          Update Board
+        </button>
+        <div>Total energy sold and bought from Grid: {energyToGrid}</div>
+        <div>Number of updates : {countUpdate}</div>
+      </div>
     </>
   );
 }
